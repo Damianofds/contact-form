@@ -1,0 +1,24 @@
+{
+  "name": "mailsender",
+  "version": "1.0.0",
+  "description": "a simple mail sender app to support write me form @ damianofds.github.io",
+  "main": "mailsender.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "mailsender",
+    "mail",
+    "form"
+  ],
+  "author": "fds",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.14.2",
+    "bunyan": "^1.5.1",
+    "cors": "^2.7.1",
+    "express": "^4.13.3",
+    "forever": "^0.15.1",
+    "nodemailer": "^1.11.0"
+  }
+}
