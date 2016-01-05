@@ -16,24 +16,9 @@ limitations under the License.
 
 
 
-// -------------- Configuration ----------------------------------
-// ---- mailbox details -------
-var fdsMailAccountSender = '********@****.***';
-var fdsMailAccountSenderPassword = '********';
-var fdsMailBox = '******@****.***';
-var websiteUrl = "****.***"
-// ---- messages ---------------
-var RECIPIENT_SEND_SUCCESS = "Mail to the main recipient succesfully sent!"; 
-var RECIPIENT_SEND_FAIL = "An error occurred while sending the mail, no cc mail will be sent if requested..."
-var CCOPY_SEND_SUCCESS = "the carboncopy email has been succesfully sent!";
-var CCOPY_SEND_FAIL = "an error occurred while sending the carboncopy email...";
-var CCOPY_NOT_REQUESTED = "No carbon copy mail has been requested...";
-// ---------------------------------------------------------------
-
-
-
-
 // setting dependencies
+var cfg = require('./config.js');
+var msg = require('./messages.js');
 var express = require('express');
 var cors = require('cors');
 var router = express.Router();
@@ -59,8 +44,8 @@ var server = app.listen(3000, function () {
 var transporter = nodemailer.createTransport({
 	service: 'Gmail',
         auth:{
-                user: fdsMailAccountSender,
-                pass: fdsMailAccountSenderPassword
+                user: cfg.fdsMailAccountSender,
+                pass: cfg.fdsMailAccountSenderPassword
         }
 });
 
@@ -85,7 +70,8 @@ function handleMails(req, res){
                 if(error){
                         log.error("Mail NOT sent, error: '" + error + "'");
 			log.warn("CarbonCopy Won't be sent although it has been requested");
-			res.json({outcome: RECIPIENT_SEND_FAIL,ccOutcome: CCOPY_SEND_FAIL});
+			res.json({outcome: msg.RECIPIENT_SEND_FAIL,ccOutcome: msg.CCOPY_SEND_FAIL});
+			log.info(" --- handleMails - END ---");
 			
                 }else{
                         log.info("Mail sent, response: : '" + info.response + "'");
@@ -93,17 +79,17 @@ function handleMails(req, res){
 				transporter.sendMail(ccopyOptionBuilder(req), function(error, info){
 					if(error){
 				                log.error("CarbonCopy NOT sent, error: '" + error + "'");
-						res.json({outcome: RECIPIENT_SEND_SUCCESS,ccOutcome: CCOPY_SEND_FAIL});
+						res.json({outcome: msg.RECIPIENT_SEND_SUCCESS,ccOutcome: msg.CCOPY_SEND_FAIL});
 					}else{
 				                log.info("CarbonCopy sent, response: : '" + info.response + "'");
-						res.json({outcome: RECIPIENT_SEND_SUCCESS,ccOutcome: CCOPY_SEND_SUCCESS});
+						res.json({outcome: msg.RECIPIENT_SEND_SUCCESS,ccOutcome: msg.CCOPY_SEND_SUCCESS});
 			
 					}
 					log.info(" --- handleMails - END ---");
 				});
 			}
 			else{
-				res.json({outcome: RECIPIENT_SEND_SUCCESS,ccOutcome: CCOPY_NOT_REQUESTED});
+				res.json({outcome: msg.RECIPIENT_SEND_SUCCESS,ccOutcome: msg.CCOPY_NOT_REQUESTED});
 				log.info(" --- handleMails - END ---");
 			}
                 }
@@ -121,8 +107,8 @@ function mailOptionBuilder(req){
 			"\r\n--- name: '" + req.body.name + "' ---" +
 			"\r\n\r\n--- text:\r\n" + req.body.text + "\r\n---";
         var mailOptions = {
-		from: fdsMailAccountSender,
-		to: fdsMailBox,
+		from: cfg.fdsMailAccountSender,
+		to: cfg.fdsMailBox,
 		subject: subject,
 		text: text
 	};
@@ -135,12 +121,12 @@ function mailOptionBuilder(req){
 */
 function ccopyOptionBuilder(req){
 
-	var subject = websiteUrl + ': carboncopy of the sent message';
+	var subject = cfg.websiteUrl + ': carboncopy of the sent message';
 	var text = "--- Hi " + req.body.name  + "! this is the message you just sent me ---" +
 			"\r\n\r\n<<\r\n" + req.body.text + "\r\n >>" + 
 			"\r\n\r\n Thank you and best regards!";
 	var mailOptionsCarboncopy = {
-        	from: fdsMailAccountSender,
+        	from: cfg.fdsMailAccountSender,
         	to: req.body.email,
         	subject: subject,
         	text: text
