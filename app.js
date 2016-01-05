@@ -29,8 +29,14 @@ var bunyan = require('bunyan');
 // setting middleware functions
 var app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use('/sendMail', router);
+
+var corsOptions = {
+  origin: true,
+  methods: 'POST'
+};
 app.use(cors());
+
+app.use('/sendMail', router);
 router.post('/', handleMails);
 
 var server = app.listen(3000, function () {
